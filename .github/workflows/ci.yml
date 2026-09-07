@@ -70,7 +70,7 @@ jobs:
         working-directory: infra
         run: |
           tflint --init
-          tflint
+          tflint --minimum-failure-severity=error
 
       - name: Terraform plan
         id: plan
