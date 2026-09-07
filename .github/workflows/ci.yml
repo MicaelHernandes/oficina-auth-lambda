@@ -98,3 +98,11 @@ jobs:
               repo: context.repo.repo,
               body: body.substring(0, 65000)
             });
+
+      # Plan informativo: depende de outputs/SSM dos repos 2 e 3. Antes de
+      # provisioná-los, não resolve — não bloqueamos o CI (gates duros:
+      # testes, typecheck, build, fmt/validate/tflint).
+      - name: Aviso se o plan falhou (dependência upstream)
+        if: steps.plan.outcome == 'failure'
+        run: |
+          echo "::warning::terraform plan falhou — normalmente porque os repos upstream (2 e 3) ainda não foram aplicados; os outputs/SSM não existem. Após provisionar na ordem 2 -> 3 -> 1, o plan passa a resolver."
