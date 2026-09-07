@@ -1,0 +1,28 @@
+{
+  "name": "oficina-auth-lambda",
+  "version": "1.0.0",
+  "description": "Função Serverless de autenticação por CPF (JWT HS256) + Lambda Authorizer — Tech Challenge Fase 3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run build:auth && npm run build:authorizer",
+    "build:auth": "esbuild src/auth/handler.ts --bundle --platform=node --target=node22 --format=cjs --external:pg-native --outfile=dist/auth/index.js",
+    "build:authorizer": "esbuild src/authorizer/handler.ts --bundle --platform=node --target=node22 --format=cjs --external:pg-native --outfile=dist/authorizer/index.js"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
