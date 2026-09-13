@@ -153,6 +153,18 @@ resource "aws_apigatewayv2_api" "this" {
   name          = "${var.project}-api"
   protocol_type = "HTTP"
   tags          = local.tags
+
+  # CORS só para o Swagger da aplicação (app_backend_url), que chama o
+  # POST /auth a partir do navegador. CORS não bloqueia requisição nenhuma no
+  # gateway: apenas responde o preflight OPTIONS e acrescenta os headers
+  # Access-Control-* para esta origem. Clientes fora do navegador (curl,
+  # Postman, ferramentas web com proxy) seguem exatamente como antes.
+  cors_configuration {
+    allow_origins = [var.app_backend_url]
+    allow_methods = ["GET", "POST", "OPTIONS"]
+    allow_headers = ["authorization", "content-type", "x-request-id"]
+    max_age       = 300
+  }
 }
 
 # POST /auth -> Lambda de auth (sem authorizer).
