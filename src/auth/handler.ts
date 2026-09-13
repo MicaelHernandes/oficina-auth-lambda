@@ -19,6 +19,13 @@ function json(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
 export async function handler(
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> {
+  // Preflight CORS do Swagger da aplicação: a rota OPTIONS /auth do API Gateway
+  // aponta para esta função, e o gateway acrescenta os headers Access-Control-*
+  // configurados no API. O navegador só exige um status 2xx.
+  if (event.requestContext?.http?.method === "OPTIONS") {
+    return { statusCode: 204 };
+  }
+
   let cpfRaw: string | undefined;
   try {
     const parsed = JSON.parse(event.body ?? "{}");
