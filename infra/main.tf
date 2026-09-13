@@ -209,6 +209,16 @@ resource "aws_apigatewayv2_route" "proxy" {
   authorizer_id      = aws_apigatewayv2_authorizer.jwt.id
 }
 
+# Preflight CORS. Sem esta rota, o OPTIONS do navegador casa com
+# ANY /{proxy+}, passa pelo authorizer sem token e recebe 401 — e o navegador
+# exige 2xx no preflight. Sem integração e sem authorizer: com o
+# cors_configuration do API, o próprio API Gateway responde o preflight, e
+# nada chega à aplicação.
+resource "aws_apigatewayv2_route" "cors_preflight" {
+  api_id    = aws_apigatewayv2_api.this.id
+  route_key = "OPTIONS /{proxy+}"
+}
+
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.this.id
   name        = "$default"
