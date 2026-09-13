@@ -26,6 +26,14 @@ beforeEach(() => {
 });
 
 describe("auth handler", () => {
+  it("204 para o preflight OPTIONS, sem validar CPF nem consultar o banco", async () => {
+    const res = await handler({
+      requestContext: { http: { method: "OPTIONS" } },
+    } as unknown as APIGatewayProxyEventV2);
+    expect(res).toEqual({ statusCode: 204 });
+    expect(mockFind).not.toHaveBeenCalled();
+  });
+
   it("400 para CPF inválido", async () => {
     const res = parse(await handler(event({ cpf: "111.111.111-11" })));
     expect(res.status).toBe(400);
