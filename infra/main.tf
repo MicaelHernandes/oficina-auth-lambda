@@ -211,12 +211,16 @@ resource "aws_apigatewayv2_route" "proxy" {
 
 # Preflight CORS. Sem esta rota, o OPTIONS do navegador casa com
 # ANY /{proxy+}, passa pelo authorizer sem token e recebe 401 — e o navegador
-# exige 2xx no preflight. Sem integração e sem authorizer: com o
-# cors_configuration do API, o próprio API Gateway responde o preflight, e
-# nada chega à aplicação.
+# exige 2xx no preflight. Sem authorizer e COM integração: a AWS exige uma
+# integração na rota OPTIONS /{proxy+} (sem alvo ela não é selecionada e o
+# OPTIONS volta a cair no ANY). Com o cors_configuration do API, o próprio
+# API Gateway responde os preflights; só um OPTIONS sem os headers de CORS
+# seguiria para o ALB, que é público de qualquer forma.
+# https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html
 resource "aws_apigatewayv2_route" "cors_preflight" {
   api_id    = aws_apigatewayv2_api.this.id
   route_key = "OPTIONS /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.proxy.id}"
 }
 
 resource "aws_apigatewayv2_stage" "default" {
