@@ -201,6 +201,16 @@ resource "aws_apigatewayv2_route" "auth" {
   target    = "integrations/${aws_apigatewayv2_integration.auth.id}"
 }
 
+# Preflight CORS do POST /auth. A rota genérica OPTIONS /{proxy+} repassa para
+# o ALB, e a aplicação não tem /auth (404). Esta rota exata tem prioridade e
+# leva o preflight à própria Lambda de auth, que responde 204; o API Gateway
+# acrescenta os headers Access-Control-* do cors_configuration.
+resource "aws_apigatewayv2_route" "auth_preflight" {
+  api_id    = aws_apigatewayv2_api.this.id
+  route_key = "OPTIONS /auth"
+  target    = "integrations/${aws_apigatewayv2_integration.auth.id}"
+}
+
 resource "aws_apigatewayv2_route" "proxy" {
   api_id             = aws_apigatewayv2_api.this.id
   route_key          = "ANY /{proxy+}"
